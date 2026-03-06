@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>КушАИ — умный дневник питания</title>
+  <meta name="description" content="Фотографируй еду — ИИ считает калории и макронутриенты. Бесплатно для Android." />
+  <meta property="og:title" content="КушАИ — умный дневник питания" />
+  <meta property="og:description" content="Фотографируй еду — ИИ считает калории. Приложение для Android." />
+  <meta property="og:image" content="https://kushai.online/og.png" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230A0A0A'/><text y='.9em' font-size='85' x='12'>К</text></svg>" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0A0A0A;
+      --surface: #141414;
+      --surface2:#1E1E1E;
+      --border:  #2A2A2A;
+      --accent:  #C8F060;
+      --blue:    #60D0F0;
+      --text:    #F0F0F0;
+      --muted:   #666666;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+      color: var(--accent); text-decoration: none;
+    }
+    .nav-link {
+      color: var(--muted); text-decoration: none; font-size: 14px;
+      transition: color .2s;
+    }
+    .nav-link:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,240,96,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(200,240,96,0.1); border: 1px solid rgba(200,240,96,0.25);
+      color: var(--accent); border-radius: 99px;
+      padding: 4px 14px; font-size: 13px; font-weight: 600;
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-size: clamp(42px, 8vw, 80px);
+      font-weight: 800; line-height: 1.1; letter-spacing: -2px;
+      margin-bottom: 24px;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-size: clamp(16px, 2.5vw, 20px);
+      color: var(--muted); max-width: 520px;
+      margin: 0 auto 48px;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--accent); color: #0A0A0A;
+      font-weight: 700; font-size: 16px;
+      padding: 14px 28px; border-radius: 14px;
+      text-decoration: none; transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 0 0 0 rgba(200,240,96,0);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(200,240,96,0.25);
+    }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface); color: var(--text);
+      font-size: 15px; padding: 13px 24px; border-radius: 14px;
+      text-decoration: none; border: 1px solid var(--border);
+      transition: background .2s;
+    }
+    .btn-secondary:hover { background: var(--surface2); }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+    /* ── FEATURES ── */
+    .section {
+      padding: 100px 24px;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .section-label {
+      font-size: 13px; font-weight: 700; letter-spacing: 2px;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 12px;
+    }
+    .section h2 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800; letter-spacing: -1px; margin-bottom: 16px;
+    }
+    .section-sub {
+      color: var(--muted); font-size: 17px; margin-bottom: 64px; max-width: 500px;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .feature-card:hover { border-color: rgba(200,240,96,0.3); transform: translateY(-3px); }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: rgba(200,240,96,0.1); border: 1px solid rgba(200,240,96,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 18px;
+    }
+    .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+
+    /* ── STEPS ── */
+    .steps-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 48px; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; }
+    .step { text-align: center; }
+    .step-num {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(200,240,96,0.12); border: 2px solid var(--accent);
+      color: var(--accent); font-size: 20px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .step p { color: var(--muted); font-size: 13px; }
+
+    /* ── PRICING ── */
+    .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .plan {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 24px; padding: 32px;
+    }
+    .plan.pro {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(200,240,96,0.06) 0%, var(--surface) 60%);
+    }
+    .plan-label { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+    .plan.pro .plan-label { color: var(--accent); }
+    .plan-price { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+    .plan-price span { font-size: 16px; font-weight: 400; color: var(--muted); }
+    .plan-desc { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .plan-features li { font-size: 14px; display: flex; align-items: center; gap: 10px; }
+    .plan-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+    .plan-features li.muted::before { content: '✕'; color: var(--muted); }
+    .plan-features li.muted { color: var(--muted); }
+
+    /* ── CTA ── */
+    .cta-section {
+      text-align: center; padding: 100px 24px;
+      background: linear-gradient(to bottom, transparent, rgba(200,240,96,0.04), transparent);
+    }
+    .cta-section h2 { font-size: clamp(28px, 5vw, 48px); font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
+    .cta-section p { color: var(--muted); font-size: 17px; margin-bottom: 40px; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+      color: var(--muted); font-size: 13px;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+    .footer-links { display: flex; gap: 24px; }
+
+    /* ── DIVIDER ── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    @media (max-width: 600px) {
+      nav { padding: 14px 20px; }
+      .steps-wrap { padding: 28px 20px; }
+      footer { justify-content: center; text-align: center; }
+      .footer-links { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="/">КушАИ</a>
+  <a class="nav-link" href="mailto:support@kushai.online">Поддержка</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">
+    <span>✦</span> Бесплатно для Android
+  </div>
+  <h1>Фотографируй еду —<br /><span>ИИ считает калории</span></h1>
+  <p>Умный дневник питания. Достаточно сделать снимок блюда — искусственный интеллект мгновенно определит калории, белки, жиры и углеводы.</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="https://play.google.com/store/apps/details?id=com.kushai.kushai" target="_blank">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.06-.16l12.32-7.12-3.1-3.1L3.18 23.76zM20.54 9.22l-3.14-1.82-3.44 3.44 3.44 3.44 3.17-1.83a1.99 1.99 0 0 0 0-3.23zM3 1.25a2 2 0 0 0-.82 1.62v18.26c0 .66.32 1.24.82 1.62l.1.08 10.23-10.23v-.24L3.1 1.17 3 1.25zM14.31 12l-3.5-3.5 3.18-3.18 3.5 3.5L14.31 12z"/></svg>
+      Google Play
+    </a>
+    <a class="btn-secondary" href="mailto:support@kushai.online">
+      ✉ Написать нам
+    </a>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- FEATURES -->
+<section class="section">
+  <p class="section-label">Возможности</p>
+  <h2>Всё для контроля питания</h2>
+  <p class="section-sub">Никаких баз данных — просто сфотографируй. ИИ сделает всё остальное.</p>
+
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">📸</div>
+      <h3>Анализ по фото</h3>
+      <p>Сфотографируй блюдо — ИИ распознаёт еду и считает КБЖУ за секунды. Работает с любой едой.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Дневник и статистика</h3>
+      <p>История приёмов пищи, график калорий за неделю. Видно сколько осталось до дневной цели.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Сканер штрихкодов</h3>
+      <p>Наведи камеру на штрихкод продукта — данные подтянутся из базы Open Food Facts.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h3>Личные цели</h3>
+      <p>Задай свою суточную норму калорий и макросов. Всё настраивается под тебя.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <h3>Биометрическая защита</h3>
+      <p>Блокировка приложения по отпечатку пальца или распознаванию лица.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">☁️</div>
+      <h3>Синхронизация</h3>
+      <p>Данные хранятся в облаке. Смени телефон — история питания останется.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <p class="section-label">Как это работает</p>
+  <h2>Три шага — и готово</h2>
+  <p class="section-sub" style="margin-bottom: 40px;">Никакого ручного ввода. Просто сфотографируй.</p>
+
+  <div class="steps-wrap">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Сфотографируй</h3>
+        <p>Нажми «+» и выбери блюдо из галереи или сделай снимок камерой</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>ИИ анализирует</h3>
+        <p>Claude AI распознаёт еду и определяет КБЖУ — занимает 1–3 секунды</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Сохрани в дневник</h3>
+        <p>Проверь данные и добавь запись. Приложение обновит статистику за день</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- PRICING -->
+<section class="section">
+  <p class="section-label">Тарифы</p>
+  <h2>Начни бесплатно</h2>
+  <p class="section-sub" style="margin-bottom: 40px;">Базовые функции доступны без оплаты.</p>
+
+  <div class="pricing">
+    <div class="plan">
+      <div class="plan-label">Бесплатно</div>
+      <div class="plan-price">0 ₽ <span>/ всегда</span></div>
+      <div class="plan-desc">Для тех кто хочет попробовать</div>
+      <ul class="plan-features">
+        <li>3 AI-анализа в день</li>
+        <li>Сканер штрихкодов</li>
+        <li>История за 3 дня</li>
+        <li>Биометрическая защита</li>
+        <li class="muted">Неограниченная история</li>
+        <li class="muted">Расширенная статистика</li>
+      </ul>
+    </div>
+    <div class="plan pro">
+      <div class="plan-label">Pro</div>
+      <div class="plan-price">Скоро <span></span></div>
+      <div class="plan-desc">Без ограничений</div>
+      <ul class="plan-features">
+        <li>Безлимитный AI-анализ</li>
+        <li>Сканер штрихкодов</li>
+        <li>Вся история питания</li>
+        <li>Биометрическая защита</li>
+        <li>Статистика за любой период</li>
+        <li>Приоритетная поддержка</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Начни следить за питанием<br />прямо сейчас</h2>
+  <p>Бесплатно. Без карты. Только Android пока.</p>
+  <a class="btn-primary" href="https://play.google.com/store/apps/details?id=com.kushai.kushai" target="_blank">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.06-.16l12.32-7.12-3.1-3.1L3.18 23.76zM20.54 9.22l-3.14-1.82-3.44 3.44 3.44 3.44 3.17-1.83a1.99 1.99 0 0 0 0-3.23zM3 1.25a2 2 0 0 0-.82 1.62v18.26c0 .66.32 1.24.82 1.62l.1.08 10.23-10.23v-.24L3.1 1.17 3 1.25zM14.31 12l-3.5-3.5 3.18-3.18 3.5 3.5L14.31 12z"/></svg>
+    Скачать в Google Play
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 КушАИ</span>
+  <div class="footer-links">
+    <a href="mailto:support@kushai.online">support@kushai.online</a>
+    <a href="/privacy.html">Политика конфиденциальности</a>
+  </div>
+</footer>
+
+</body>
+</html>
