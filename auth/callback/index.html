@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>КушАИ — Подтверждение email</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0A0A0A;
+      color: #F0F0F0;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #141414;
+      border: 1px solid #2A2A2A;
+      border-radius: 24px;
+      padding: 48px 40px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon {
+      width: 72px; height: 72px;
+      background: rgba(200,240,96,0.1);
+      border: 2px solid rgba(200,240,96,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 24px;
+    }
+    .logo {
+      font-size: 15px;
+      font-weight: 700;
+      color: #C8F060;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+    p {
+      color: #888;
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .hint {
+      background: #1E1E1E;
+      border: 1px solid #2A2A2A;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 14px;
+      color: #666;
+      margin-top: 24px;
+      line-height: 1.6;
+    }
+    .hint strong { color: #C8F060; }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid #2A2A2A;
+      border-top-color: #C8F060;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 16px auto 0;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #mobile-section { display: none; }
+    #desktop-section { display: none; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">КушАИ</div>
+  <div class="icon" id="icon">⏳</div>
+  <h1 id="title">Подтверждаем...</h1>
+  <p id="desc">Секунду, переадресовываем в приложение</p>
+  <div class="spinner" id="spinner"></div>
+
+  <!-- Мобильный вариант -->
+  <div id="mobile-section">
+    <div class="hint">
+      Если приложение не открылось —<br/>
+      <strong>откройте КушАИ вручную</strong> на телефоне.
+    </div>
+  </div>
+
+  <!-- Десктопный вариант -->
+  <div id="desktop-section">
+    <div class="hint">
+      Ссылка работает только на телефоне.<br/>
+      <strong>Откройте приложение КушАИ</strong> на вашем Android-устройстве — вы уже авторизованы.
+    </div>
+  </div>
+</div>
+
+<script>
+  // Берём все параметры из URL и передаём в deep link
+  const params = window.location.search;
+  const hash = window.location.hash;
+  const deepLink = 'kushai://login-callback' + params + hash;
+
+  // Определяем мобильный ли это
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  const icon = document.getElementById('icon');
+  const title = document.getElementById('title');
+  const desc = document.getElementById('desc');
+  const spinner = document.getElementById('spinner');
+
+  if (isMobile) {
+    // На мобиле — пробуем открыть приложение
+    spinner.style.display = 'block';
+    window.location.href = deepLink;
+
+    // Через 2.5 сек показываем подсказку (если приложение не открылось)
+    setTimeout(() => {
+      icon.textContent = '✅';
+      title.textContent = 'Email подтверждён!';
+      desc.textContent = 'Откройте приложение КушАИ на телефоне.';
+      spinner.style.display = 'none';
+      document.getElementById('mobile-section').style.display = 'block';
+    }, 2500);
+  } else {
+    // На компьютере — сразу показываем инструкцию
+    icon.textContent = '✅';
+    title.textContent = 'Email подтверждён!';
+    desc.textContent = 'Ссылка подтверждения сработала успешно.';
+    document.getElementById('desktop-section').style.display = 'block';
+  }
+</script>
+</body>
+</html>
