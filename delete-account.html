@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Удаление аккаунта — КушАИ</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0A0A0A; color: #F0F0F0;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      line-height: 1.7; padding: 80px 24px;
+      max-width: 720px; margin: 0 auto;
+    }
+    h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+    .date { color: #666; font-size: 14px; margin-bottom: 48px; }
+    h2 { font-size: 20px; font-weight: 700; margin: 40px 0 12px; color: #C8F060; }
+    p, li { color: #A0A0A0; font-size: 15px; margin-bottom: 12px; }
+    ul { padding-left: 20px; }
+    a { color: #C8F060; }
+    .back { display: inline-block; margin-bottom: 40px; color: #666; text-decoration: none; font-size: 14px; }
+    .back:hover { color: #F0F0F0; }
+    .method-card {
+      background: #141414;
+      border: 1px solid #2A2A2A;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .method-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #F0F0F0;
+      margin-bottom: 12px;
+    }
+    .step {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+      align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 24px; height: 24px;
+      background: #C8F060;
+      color: #0A0A0A;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800;
+    }
+    .step-text { color: #A0A0A0; font-size: 14px; padding-top: 2px; }
+    .email-btn {
+      display: inline-block;
+      margin-top: 16px;
+      background: #1E1E1E;
+      border: 1px solid #2A2A2A;
+      color: #C8F060;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .email-btn:hover { background: #2A2A2A; }
+    .warn-box {
+      background: rgba(240, 96, 96, 0.07);
+      border: 1px solid rgba(240, 96, 96, 0.25);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 32px 0;
+    }
+    .warn-box p { color: #A0A0A0; margin: 0; font-size: 14px; }
+    .warn-box strong { color: #F06060; }
+  </style>
+</head>
+<body>
+
+<a class="back" href="/">← На главную</a>
+
+<h1>Удаление аккаунта</h1>
+<div class="date">Обновлено: март 2026 года</div>
+
+<p>Вы можете удалить свой аккаунт КушАИ и все связанные данные двумя способами.</p>
+
+<div class="warn-box">
+  <p><strong>Внимание:</strong> удаление аккаунта необратимо. Все данные будут удалены и не могут быть восстановлены.</p>
+</div>
+
+<h2>Что будет удалено</h2>
+<ul>
+  <li>Email-адрес и данные авторизации</li>
+  <li>Все записи о приёмах пищи и фотографии еды</li>
+  <li>Профиль и настройки (дневные цели, имя)</li>
+  <li>История питания и статистика</li>
+</ul>
+
+<h2>Способ 1 — В приложении</h2>
+<div class="method-card">
+  <h3>Удаление через приложение КушАИ</h3>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-text">Откройте приложение КушАИ</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-text">Перейдите на вкладку <strong style="color:#F0F0F0">Профиль</strong></div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-text">Прокрутите вниз до кнопки <strong style="color:#F06060">«Удалить аккаунт»</strong></div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-text">Подтвердите удаление в диалоговом окне</div>
+  </div>
+</div>
+
+<h2>Способ 2 — По электронной почте</h2>
+<div class="method-card">
+  <h3>Запрос через поддержку</h3>
+  <p>Если у вас нет доступа к приложению — напишите нам. Мы удалим аккаунт и все данные в течение 24 часов.</p>
+  <p>Укажите в письме email, который использовался при регистрации.</p>
+  <a class="email-btn" href="mailto:support@kushai.online?subject=Удаление аккаунта КушАИ">
+    ✉️ Написать на support@kushai.online
+  </a>
+</div>
+
+<h2>Контакты</h2>
+<p>По вопросам удаления данных: <a href="mailto:support@kushai.online">support@kushai.online</a></p>
+
+</body>
+</html>
