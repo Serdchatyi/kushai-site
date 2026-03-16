@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Оплата прошла — КушАИ</title>
+  <title>Возвращайтесь в приложение — КушАИ</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -26,43 +26,92 @@
       font-size: 38px; margin: 0 auto 24px;
     }
     h1 {
-      font-size: 28px; font-weight: 800; letter-spacing: -0.5px;
+      font-size: 26px; font-weight: 800; letter-spacing: -0.5px;
       color: #C8F060; margin-bottom: 12px;
     }
     p {
-      color: #666; font-size: 15px; line-height: 1.6; margin-bottom: 8px;
+      color: #888; font-size: 15px; line-height: 1.6; margin-bottom: 8px;
     }
-    .hint {
-      margin-top: 32px;
-      background: #1E1E1E; border-radius: 14px; padding: 16px 20px;
-      color: #888; font-size: 13px; line-height: 1.6;
+    .divider {
+      border: none; border-top: 1px solid #2A2A2A;
+      margin: 28px 0;
+    }
+    .states {
+      display: flex; flex-direction: column; gap: 12px;
+      text-align: left;
+    }
+    .state {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: #1E1E1E; border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .state-icon {
+      font-size: 20px; line-height: 1; flex-shrink: 0; margin-top: 1px;
+    }
+    .state-body { flex: 1; }
+    .state-title {
+      font-size: 13px; font-weight: 700; color: #F0F0F0;
+      margin-bottom: 3px;
+    }
+    .state-sub {
+      font-size: 12px; color: #666; line-height: 1.5;
     }
     .btn {
       display: inline-flex; align-items: center; gap: 8px;
-      margin-top: 32px;
+      margin-top: 28px;
       background: #C8F060; color: #0A0A0A;
       font-weight: 700; font-size: 15px;
-      padding: 13px 28px; border-radius: 14px;
-      text-decoration: none;
+      padding: 14px 32px; border-radius: 14px;
+      text-decoration: none; width: 100%; justify-content: center;
     }
+    .hint {
+      margin-top: 20px;
+      color: #444; font-size: 12px; line-height: 1.6;
+    }
+    .hint a { color: #C8F060; text-decoration: none; }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <div class="icon">✅</div>
-  <h1>Оплата прошла!</h1>
-  <p>Pro-доступ активирован на 30 дней.</p>
-  <p>Вернитесь в приложение — статус обновится автоматически.</p>
+  <div class="icon">📋</div>
+  <h1>Возвращайтесь<br>в приложение</h1>
+  <p>Статус вашей подписки обновится<br>автоматически.</p>
 
-  <div class="hint">
-    Если Pro не активировался — выйдите из приложения и войдите снова, или напишите нам на
-    <a href="mailto:support@kushai.online" style="color:#C8F060">support@kushai.online</a>
+  <hr class="divider">
+
+  <div class="states">
+    <div class="state">
+      <div class="state-icon">✅</div>
+      <div class="state-body">
+        <div class="state-title">Оплата прошла</div>
+        <div class="state-sub">Pro-доступ активируется в течение минуты. Откройте приложение — статус обновится сам.</div>
+      </div>
+    </div>
+    <div class="state">
+      <div class="state-icon">↩️</div>
+      <div class="state-body">
+        <div class="state-title">Вы отменили</div>
+        <div class="state-sub">Ничего не списано. Вернитесь в приложение и попробуйте снова, когда будете готовы.</div>
+      </div>
+    </div>
+    <div class="state">
+      <div class="state-icon">⏳</div>
+      <div class="state-body">
+        <div class="state-title">Платёж ожидает подтверждения</div>
+        <div class="state-sub">Банк обрабатывает платёж. Pro активируется автоматически после подтверждения.</div>
+      </div>
+    </div>
   </div>
 
   <a class="btn" href="https://play.google.com/store/apps/details?id=com.kushai.kushai">
     Открыть приложение
   </a>
+
+  <div class="hint">
+    Если Pro не активировался после успешной оплаты — выйдите и войдите снова,
+    или напишите на <a href="mailto:support@kushai.online">support@kushai.online</a>
+  </div>
 </div>
 
 </body>
