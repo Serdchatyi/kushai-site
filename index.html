@@ -3,24 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>КушАИ — умный дневник питания</title>
-  <meta name="description" content="Фотографируй еду — ИИ считает калории и макронутриенты. Бесплатно для Android." />
+  <title>КушАИ — умный дневник питания с ИИ</title>
+  <meta name="description" content="Сфотографируй еду — ИИ мгновенно считает калории, белки, жиры и углеводы. Бесплатно для Android." />
   <meta property="og:title" content="КушАИ — умный дневник питания" />
   <meta property="og:description" content="Фотографируй еду — ИИ считает калории. Приложение для Android." />
   <meta property="og:image" content="https://kushai.online/og.png" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230A0A0A'/><text y='.9em' font-size='85' x='12'>К</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230A0A0A'/><text y='.9em' font-size='72' x='14'>🥗</text></svg>" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #0A0A0A;
-      --surface: #141414;
-      --surface2:#1E1E1E;
-      --border:  #2A2A2A;
-      --accent:  #C8F060;
-      --blue:    #60D0F0;
-      --text:    #F0F0F0;
-      --muted:   #666666;
+      --bg:       #0A0A0A;
+      --s1:       #141414;
+      --s2:       #1A1A1A;
+      --border:   #252525;
+      --border2:  #333;
+      --accent:   #C8F060;
+      --accent2:  #60D0F0;
+      --warn:     #F0A060;
+      --text:     #F2F2F2;
+      --muted:    #666;
+      --muted2:   #888;
     }
 
     html { scroll-behavior: smooth; }
@@ -28,185 +34,683 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, 'Segoe UI', sans-serif;
+      font-family: 'DM Sans', -apple-system, sans-serif;
       line-height: 1.6;
-      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* ── NAV ── */
+    /* ─── SCROLLBAR ─────────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    /* ─── NAV ───────────────────────────────────────────────────────────────── */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 32px;
-      background: rgba(10,10,10,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+      padding: 0 40px; height: 64px;
+      background: rgba(10,10,10,0.75);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .nav-logo {
-      font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+      font-family: 'Syne', sans-serif;
+      font-size: 20px; font-weight: 800; letter-spacing: -0.5px;
       color: var(--accent); text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
     }
+    .nav-logo-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
     .nav-link {
-      color: var(--muted); text-decoration: none; font-size: 14px;
+      color: var(--muted2); text-decoration: none; font-size: 14px;
       transition: color .2s;
     }
     .nav-link:hover { color: var(--text); }
-
-    /* ── HERO ── */
-    .hero {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      text-align: center;
-      padding: 120px 24px 80px;
-      position: relative; overflow: hidden;
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent); color: #0A0A0A;
+      font-weight: 700; font-size: 13px; padding: 8px 18px;
+      border-radius: 10px; text-decoration: none;
+      transition: opacity .2s, transform .15s;
     }
-    .hero::before {
-      content: '';
-      position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
-      width: 600px; height: 600px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(200,240,96,0.08) 0%, transparent 70%);
+    .nav-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ─── CANVAS BG ─────────────────────────────────────────────────────────── */
+    #hero-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
       pointer-events: none;
     }
+
+    /* ─── HERO ──────────────────────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      align-items: center;
+      gap: 60px;
+      padding: 100px 80px 60px;
+      position: relative; overflow: hidden;
+      max-width: 1300px; margin: 0 auto;
+    }
+    .hero-glow {
+      position: absolute; top: -200px; left: -100px;
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,240,96,0.06) 0%, transparent 65%);
+      pointer-events: none; animation: glow-drift 8s ease-in-out infinite;
+    }
+    .hero-glow2 {
+      position: absolute; top: 200px; right: -200px;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(96,208,240,0.05) 0%, transparent 65%);
+      pointer-events: none; animation: glow-drift 11s ease-in-out infinite reverse;
+    }
+    @keyframes glow-drift {
+      0%,100% { transform: translate(0,0); }
+      33% { transform: translate(40px,-30px); }
+      66% { transform: translate(-20px,40px); }
+    }
+    .hero-left { position: relative; z-index: 1; }
     .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(200,240,96,0.1); border: 1px solid rgba(200,240,96,0.25);
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(200,240,96,0.08);
+      border: 1px solid rgba(200,240,96,0.22);
       color: var(--accent); border-radius: 99px;
-      padding: 4px 14px; font-size: 13px; font-weight: 600;
-      margin-bottom: 28px;
+      padding: 5px 16px 5px 10px; font-size: 13px; font-weight: 600;
+      margin-bottom: 32px; letter-spacing: 0.2px;
+    }
+    .badge-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(200,240,96,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
     }
     .hero h1 {
-      font-size: clamp(42px, 8vw, 80px);
-      font-weight: 800; line-height: 1.1; letter-spacing: -2px;
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(44px, 6vw, 72px);
+      font-weight: 800; line-height: 1.08;
+      letter-spacing: -2.5px;
       margin-bottom: 24px;
     }
-    .hero h1 span { color: var(--accent); }
-    .hero p {
-      font-size: clamp(16px, 2.5vw, 20px);
-      color: var(--muted); max-width: 520px;
-      margin: 0 auto 48px;
+    .hero h1 .accent { color: var(--accent); }
+    .hero h1 .accent2 { color: var(--accent2); }
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 18px);
+      color: var(--muted2); max-width: 440px;
+      margin-bottom: 44px; line-height: 1.7;
     }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
     .btn-primary {
       display: inline-flex; align-items: center; gap: 10px;
       background: var(--accent); color: #0A0A0A;
-      font-weight: 700; font-size: 16px;
-      padding: 14px 28px; border-radius: 14px;
-      text-decoration: none; transition: transform .2s, box-shadow .2s;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700; font-size: 15px;
+      padding: 14px 26px; border-radius: 14px;
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s, opacity .2s;
       box-shadow: 0 0 0 0 rgba(200,240,96,0);
     }
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(200,240,96,0.25);
+      box-shadow: 0 12px 40px rgba(200,240,96,0.28);
     }
     .btn-secondary {
       display: inline-flex; align-items: center; gap: 8px;
-      background: var(--surface); color: var(--text);
-      font-size: 15px; padding: 13px 24px; border-radius: 14px;
+      background: var(--s1); color: var(--muted2);
+      font-size: 14px; padding: 13px 22px; border-radius: 14px;
       text-decoration: none; border: 1px solid var(--border);
-      transition: background .2s;
+      transition: background .2s, color .2s, border-color .2s;
     }
-    .btn-secondary:hover { background: var(--surface2); }
-    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .btn-secondary:hover {
+      background: var(--s2); color: var(--text);
+      border-color: var(--border2);
+    }
+    .hero-stats {
+      display: flex; gap: 36px; margin-top: 52px;
+      border-top: 1px solid var(--border);
+      padding-top: 32px;
+    }
+    .hero-stat-n {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px; font-weight: 800;
+      letter-spacing: -1px; color: var(--text);
+      line-height: 1;
+    }
+    .hero-stat-n .unit { font-size: 16px; color: var(--accent); font-weight: 700; }
+    .hero-stat-l { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
-    /* ── FEATURES ── */
+    /* ─── PHONE MOCKUP ──────────────────────────────────────────────────────── */
+    .hero-right {
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 1;
+    }
+    .phone-wrap {
+      animation: phone-float 5s ease-in-out infinite;
+      position: relative;
+    }
+    @keyframes phone-float {
+      0%,100% { transform: translateY(0px) rotate(0.5deg); }
+      50% { transform: translateY(-18px) rotate(-0.5deg); }
+    }
+    .phone {
+      width: 240px; height: 490px;
+      background: #0E0E0E;
+      border-radius: 40px;
+      border: 2px solid #2A2A2A;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        0 40px 80px rgba(0,0,0,0.7),
+        0 0 60px rgba(200,240,96,0.06);
+      overflow: hidden;
+      position: relative;
+    }
+    /* notch */
+    .phone::before {
+      content: '';
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 8px;
+      background: #1A1A1A;
+      border-radius: 4px; z-index: 10;
+    }
+    .phone-screen {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      padding: 32px 0 0;
+    }
+
+    /* phone top bar */
+    .ps-header {
+      padding: 8px 16px 10px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .ps-date { font-size: 9px; color: #555; }
+    .ps-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 12px; font-weight: 800; color: var(--accent);
+      letter-spacing: -0.3px;
+    }
+
+    /* calorie ring */
+    .ps-ring-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 6px 0 10px;
+    }
+    .ps-ring {
+      width: 110px; height: 110px; position: relative;
+    }
+    .ps-ring svg { width: 100%; height: 100%; }
+    .ps-ring-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .ps-kcal-n {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px; font-weight: 800; color: #fff; line-height: 1;
+    }
+    .ps-kcal-l { font-size: 8px; color: #555; margin-top: 2px; }
+    .ps-macros {
+      display: flex; gap: 12px; margin-top: 8px;
+    }
+    .ps-macro { text-align: center; }
+    .ps-macro-v { font-size: 11px; font-weight: 600; }
+    .ps-macro-l { font-size: 8px; color: #555; }
+    .ps-macro.p { color: var(--accent2); }
+    .ps-macro.f { color: var(--warn); }
+    .ps-macro.c { color: var(--accent); }
+
+    /* food cards */
+    .ps-cards { padding: 6px 12px; display: flex; flex-direction: column; gap: 6px; }
+    .ps-card {
+      background: #1A1A1A; border-radius: 12px;
+      padding: 8px 10px;
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid #222;
+      animation: card-slide-in .4s ease both;
+    }
+    .ps-card:nth-child(2) { animation-delay: .1s; }
+    .ps-card:nth-child(3) { animation-delay: .2s; }
+    @keyframes card-slide-in {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .ps-card-emoji { font-size: 22px; }
+    .ps-card-info { flex: 1; }
+    .ps-card-name { font-size: 9px; font-weight: 600; color: #ccc; line-height: 1.2; }
+    .ps-card-kcal { font-size: 8px; color: #555; margin-top: 1px; }
+    .ps-card-badge {
+      font-size: 8px; font-weight: 700;
+      padding: 2px 6px; border-radius: 5px;
+    }
+    .ps-card-badge.green { background: rgba(200,240,96,0.15); color: var(--accent); }
+    .ps-card-badge.blue { background: rgba(96,208,240,0.15); color: var(--accent2); }
+
+    /* phone nav */
+    .ps-nav {
+      margin-top: auto;
+      background: #121212;
+      border-top: 1px solid #222;
+      display: flex; justify-content: space-around;
+      padding: 8px 0;
+    }
+    .ps-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 7px; color: #444;
+    }
+    .ps-nav-item.active { color: var(--accent); }
+    .ps-nav-item span { font-size: 14px; }
+
+    /* glow ring around phone */
+    .phone-glow {
+      position: absolute; inset: -40px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(200,240,96,0.05) 30%, transparent 70%);
+      animation: phone-glow-pulse 3s ease-in-out infinite;
+    }
+    @keyframes phone-glow-pulse {
+      0%,100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* ─── STRIP ─────────────────────────────────────────────────────────────── */
+    .strip {
+      background: var(--s1);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 0;
+      overflow: hidden;
+    }
+    .strip-inner {
+      display: flex; justify-content: center;
+      gap: 0; max-width: 1100px; margin: 0 auto;
+      padding: 0 24px;
+    }
+    .strip-item {
+      flex: 1; text-align: center;
+      padding: 0 24px;
+      border-right: 1px solid var(--border);
+    }
+    .strip-item:last-child { border-right: none; }
+    .strip-n {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px; font-weight: 800;
+      letter-spacing: -1.5px; line-height: 1;
+      color: var(--text);
+    }
+    .strip-n .s-accent { color: var(--accent); }
+    .strip-l { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+    /* ─── SECTION ───────────────────────────────────────────────────────────── */
     .section {
       padding: 100px 24px;
       max-width: 1100px; margin: 0 auto;
     }
-    .section-label {
-      font-size: 13px; font-weight: 700; letter-spacing: 2px;
-      color: var(--accent); text-transform: uppercase; margin-bottom: 12px;
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 700; letter-spacing: 2px;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 16px;
+    }
+    .section-tag::before {
+      content: ''; display: block;
+      width: 20px; height: 2px; background: var(--accent);
+      border-radius: 1px;
     }
     .section h2 {
-      font-size: clamp(28px, 5vw, 48px);
-      font-weight: 800; letter-spacing: -1px; margin-bottom: 16px;
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(30px, 5vw, 52px);
+      font-weight: 800; letter-spacing: -2px;
+      line-height: 1.1; margin-bottom: 16px;
     }
     .section-sub {
-      color: var(--muted); font-size: 17px; margin-bottom: 64px; max-width: 500px;
+      color: var(--muted2); font-size: 17px;
+      max-width: 480px; margin-bottom: 64px;
+      line-height: 1.7;
     }
-    .features {
+
+    /* ─── BENTO FEATURES ────────────────────────────────────────────────────── */
+    .bento {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto;
+      gap: 16px;
     }
-    .feature-card {
-      background: var(--surface); border: 1px solid var(--border);
+    .bento-card {
+      background: var(--s1);
+      border: 1px solid var(--border);
       border-radius: 20px; padding: 28px;
-      transition: border-color .2s, transform .2s;
+      transition: border-color .3s, transform .3s, box-shadow .3s;
+      position: relative; overflow: hidden;
     }
-    .feature-card:hover { border-color: rgba(200,240,96,0.3); transform: translateY(-3px); }
-    .feature-icon {
-      width: 48px; height: 48px; border-radius: 14px;
-      background: rgba(200,240,96,0.1); border: 1px solid rgba(200,240,96,0.2);
+    .bento-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(200,240,96,0.04) 0%, transparent 60%);
+      opacity: 0; transition: opacity .3s;
+      pointer-events: none;
+    }
+    .bento-card:hover {
+      border-color: rgba(200,240,96,0.25);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(200,240,96,0.1);
+    }
+    .bento-card:hover::after { opacity: 1; }
+    .bento-card.wide { grid-column: span 2; }
+    .bento-card.blue:hover { border-color: rgba(96,208,240,0.25); }
+    .bento-card.blue::after {
+      background: radial-gradient(circle at 50% 0%, rgba(96,208,240,0.04) 0%, transparent 60%);
+    }
+    .bento-icon {
+      width: 44px; height: 44px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px; margin-bottom: 18px;
+      font-size: 20px; margin-bottom: 20px;
+      background: rgba(200,240,96,0.08);
+      border: 1px solid rgba(200,240,96,0.15);
     }
-    .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-    .feature-card p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .bento-card.blue .bento-icon {
+      background: rgba(96,208,240,0.08);
+      border-color: rgba(96,208,240,0.15);
+    }
+    .bento-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px; font-weight: 700;
+      margin-bottom: 10px; letter-spacing: -0.3px;
+    }
+    .bento-card p { color: var(--muted2); font-size: 14px; line-height: 1.7; }
+    .bento-big-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 48px; font-weight: 800;
+      letter-spacing: -2px; color: var(--accent);
+      line-height: 1; margin-top: 12px;
+    }
+    .bento-big-text.blue { color: var(--accent2); }
 
-    /* ── STEPS ── */
-    .steps-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 48px; }
-    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; }
-    .step { text-align: center; }
-    .step-num {
-      width: 52px; height: 52px; border-radius: 50%;
-      background: rgba(200,240,96,0.12); border: 2px solid var(--accent);
-      color: var(--accent); font-size: 20px; font-weight: 800;
+    /* ─── STEPS ─────────────────────────────────────────────────────────────── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 24px; overflow: hidden;
+    }
+    .step {
+      padding: 40px 36px;
+      border-right: 1px solid var(--border);
+      position: relative;
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .step:last-child { border-right: none; }
+    .step-n {
+      font-family: 'Syne', sans-serif;
+      font-size: 64px; font-weight: 800;
+      letter-spacing: -4px; line-height: 1;
+      color: rgba(200,240,96,0.12);
+      margin-bottom: 20px; display: block;
+    }
+    .step-emoji { font-size: 32px; display: block; margin-bottom: 16px; }
+    .step h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px; font-weight: 700;
+      letter-spacing: -0.3px; margin-bottom: 10px;
+    }
+    .step p { color: var(--muted2); font-size: 14px; line-height: 1.7; }
+    .step-arrow {
+      position: absolute; right: -12px; top: 50%;
+      transform: translateY(-50%);
+      width: 24px; height: 24px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 50%; z-index: 1;
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 16px;
+      font-size: 11px; color: var(--accent);
     }
-    .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-    .step p { color: var(--muted); font-size: 13px; }
+    .step:last-child .step-arrow { display: none; }
 
-    /* ── PRICING ── */
-    .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    /* ─── FASTING HIGHLIGHT ─────────────────────────────────────────────────── */
+    .fasting-block {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+    .fasting-visual {
+      display: flex; align-items: center; justify-content: center;
+      position: relative; padding: 40px;
+    }
+    .fasting-ring-svg {
+      width: 220px; height: 220px;
+      animation: ring-spin 20s linear infinite;
+      filter: drop-shadow(0 0 20px rgba(200,240,96,0.15));
+    }
+    @keyframes ring-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .fasting-center {
+      position: absolute;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      width: 220px; height: 220px;
+    }
+    .fasting-emoji { font-size: 40px; animation: fasting-bob 3s ease-in-out infinite; }
+    @keyframes fasting-bob {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .fasting-time {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px; font-weight: 800;
+      color: var(--accent); letter-spacing: -1px;
+      margin-top: 4px;
+    }
+    .fasting-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .fasting-zones {
+      display: flex; flex-direction: column; gap: 10px; margin-top: 32px;
+    }
+    .fasting-zone {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px;
+      background: var(--s1); border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: border-color .2s;
+    }
+    .fasting-zone:hover { border-color: var(--border2); }
+    .zone-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .zone-info { flex: 1; }
+    .zone-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .zone-time { font-size: 11px; color: var(--muted); }
+    .zone-emoji-s { font-size: 16px; }
+
+    /* ─── RECIPES ───────────────────────────────────────────────────────────── */
+    .recipe-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px; margin-top: 48px;
+    }
+    .recipe-card {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      transition: transform .2s, border-color .2s;
+    }
+    .recipe-card:hover { transform: translateY(-4px); border-color: var(--border2); }
+    .recipe-img {
+      height: 100px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 42px;
+      background: var(--s2);
+    }
+    .recipe-body { padding: 12px 14px; }
+    .recipe-name { font-size: 13px; font-weight: 600; line-height: 1.3; margin-bottom: 6px; }
+    .recipe-kcal { font-size: 11px; color: var(--accent); font-weight: 600; }
+
+    /* ─── PRICING ───────────────────────────────────────────────────────────── */
+    .pricing-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; max-width: 760px;
+    }
     .plan {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 24px; padding: 32px;
+      background: var(--s1); border: 1px solid var(--border);
+      border-radius: 24px; padding: 36px;
+      position: relative; overflow: hidden;
     }
     .plan.pro {
-      border-color: var(--accent);
-      background: linear-gradient(135deg, rgba(200,240,96,0.06) 0%, var(--surface) 60%);
+      border-color: rgba(200,240,96,0.3);
+      background: linear-gradient(135deg,
+        rgba(200,240,96,0.04) 0%,
+        var(--s1) 50%);
     }
-    .plan-label { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
-    .plan.pro .plan-label { color: var(--accent); }
-    .plan-price { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
-    .plan-price span { font-size: 16px; font-weight: 400; color: var(--muted); }
-    .plan-desc { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
-    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .plan-features li { font-size: 14px; display: flex; align-items: center; gap: 10px; }
-    .plan-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
-    .plan-features li.muted::before { content: '✕'; color: var(--muted); }
-    .plan-features li.muted { color: var(--muted); }
+    .plan-badge {
+      position: absolute; top: 20px; right: 20px;
+      background: var(--accent); color: #0A0A0A;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+    .plan-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px; font-weight: 700;
+      color: var(--muted2); margin-bottom: 8px;
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+    .plan.pro .plan-name { color: var(--accent); }
+    .plan-price {
+      font-family: 'Syne', sans-serif;
+      font-size: 44px; font-weight: 800;
+      letter-spacing: -2px; line-height: 1;
+      margin-bottom: 4px;
+    }
+    .plan-per { font-size: 14px; color: var(--muted); font-weight: 400; letter-spacing: 0; }
+    .plan-desc { color: var(--muted2); font-size: 14px; margin: 16px 0 24px; }
+    .plan-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .plan-list li {
+      font-size: 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .plan-list li::before {
+      content: '';
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(200,240,96,0.12);
+      border: 1px solid rgba(200,240,96,0.3);
+      flex-shrink: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23C8F060' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 10px;
+    }
+    .plan-list li.off { color: var(--muted); }
+    .plan-list li.off::before {
+      background: rgba(100,100,100,0.1);
+      border-color: #333;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: center; background-size: 10px;
+    }
 
-    /* ── CTA ── */
+    /* ─── CTA ───────────────────────────────────────────────────────────────── */
     .cta-section {
-      text-align: center; padding: 100px 24px;
-      background: linear-gradient(to bottom, transparent, rgba(200,240,96,0.04), transparent);
+      padding: 120px 24px;
+      text-align: center;
+      position: relative; overflow: hidden;
     }
-    .cta-section h2 { font-size: clamp(28px, 5vw, 48px); font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
-    .cta-section p { color: var(--muted); font-size: 17px; margin-bottom: 40px; }
+    .cta-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%,
+        rgba(200,240,96,0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-section h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(30px, 5vw, 56px);
+      font-weight: 800; letter-spacing: -2px;
+      margin-bottom: 20px; line-height: 1.1;
+      position: relative;
+    }
+    .cta-section p {
+      color: var(--muted2); font-size: 17px;
+      margin-bottom: 48px; position: relative;
+    }
+    .cta-btns {
+      display: flex; gap: 12px; justify-content: center;
+      flex-wrap: wrap; position: relative;
+    }
+    .btn-glow {
+      animation: btn-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes btn-pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(200,240,96,0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(200,240,96,0); }
+    }
 
-    /* ── FOOTER ── */
+    /* ─── DIVIDER ───────────────────────────────────────────────────────────── */
+    .divider { border: none; border-top: 1px solid var(--border); }
+
+    /* ─── FOOTER ────────────────────────────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
-      padding: 40px 32px;
+      padding: 40px;
       display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 16px;
+      flex-wrap: wrap; gap: 20px;
       color: var(--muted); font-size: 13px;
     }
-    footer a { color: var(--muted); text-decoration: none; }
-    footer a:hover { color: var(--text); }
-    .footer-links { display: flex; gap: 24px; }
+    .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px; font-weight: 800;
+      color: var(--accent); text-decoration: none;
+    }
+    .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--text); }
 
-    /* ── DIVIDER ── */
-    .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+    /* ─── SCROLL REVEAL ─────────────────────────────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible {
+      opacity: 1; transform: translateY(0);
+    }
+    .reveal-d1 { transition-delay: .1s; }
+    .reveal-d2 { transition-delay: .2s; }
+    .reveal-d3 { transition-delay: .3s; }
+    .reveal-d4 { transition-delay: .4s; }
 
+    /* ─── RESPONSIVE ────────────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center; padding: 100px 24px 60px;
+        gap: 48px;
+      }
+      .hero-sub { margin-left: auto; margin-right: auto; }
+      .hero-btns { justify-content: center; }
+      .hero-stats { justify-content: center; flex-wrap: wrap; }
+      .hero-right { order: -1; }
+      .bento { grid-template-columns: 1fr 1fr; }
+      .bento-card.wide { grid-column: span 2; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .step { border-right: none; border-bottom: 1px solid var(--border); }
+      .step:last-child { border-bottom: none; }
+      .step-arrow { display: none; }
+      .fasting-block { grid-template-columns: 1fr; }
+      .recipe-row { grid-template-columns: repeat(2, 1fr); }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+      nav { padding: 0 20px; }
+      .nav-right .nav-link { display: none; }
+    }
     @media (max-width: 600px) {
-      nav { padding: 14px 20px; }
-      .steps-wrap { padding: 28px 20px; }
+      .bento { grid-template-columns: 1fr; }
+      .bento-card.wide { grid-column: span 1; }
+      .strip-inner { flex-wrap: wrap; }
+      .strip-item { border-right: none; border-bottom: 1px solid var(--border); padding: 16px 24px; }
+      .strip-item:last-child { border-bottom: none; }
       footer { justify-content: center; text-align: center; }
       .footer-links { justify-content: center; }
+      .recipe-row { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -214,66 +718,143 @@
 
 <!-- NAV -->
 <nav>
-  <a class="nav-logo" href="/">КушАИ</a>
-  <a class="nav-link" href="mailto:support@kushai.online">Поддержка</a>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-dot"></div>
+    КушАИ
+  </a>
+  <div class="nav-right">
+    <a class="nav-link" href="#features">Возможности</a>
+    <a class="nav-link" href="#pricing">Тарифы</a>
+    <a class="nav-btn" href="https://play.google.com/store/apps/details?id=com.kushai.kushai" target="_blank">
+      Скачать
+    </a>
+  </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero">
-  <div class="badge">
-    <span>✦</span> Бесплатно для Android
-  </div>
-  <h1>Фотографируй еду —<br /><span>ИИ считает калории</span></h1>
-  <p>Умный дневник питания. Достаточно сделать снимок блюда — искусственный интеллект мгновенно определит калории, белки, жиры и углеводы.</p>
-  <div class="hero-btns">
-    <a class="btn-primary" href="https://play.google.com/store/apps/details?id=com.kushai.kushai" target="_blank">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.06-.16l12.32-7.12-3.1-3.1L3.18 23.76zM20.54 9.22l-3.14-1.82-3.44 3.44 3.44 3.44 3.17-1.83a1.99 1.99 0 0 0 0-3.23zM3 1.25a2 2 0 0 0-.82 1.62v18.26c0 .66.32 1.24.82 1.62l.1.08 10.23-10.23v-.24L3.1 1.17 3 1.25zM14.31 12l-3.5-3.5 3.18-3.18 3.5 3.5L14.31 12z"/></svg>
-      Google Play
-    </a>
-    <a class="btn-secondary" href="mailto:support@kushai.online">
-      ✉ Написать нам
-    </a>
-  </div>
-</section>
+<div style="position:relative; overflow:hidden;">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
 
-<hr class="divider" />
+    <div class="hero-left">
+      <div class="badge">
+        <div class="badge-icon">✦</div>
+        Бесплатно для Android
+      </div>
+      <h1>
+        Фотографируй еду —<br />
+        <span class="accent">ИИ считает</span><br />
+        <span class="accent2">калории</span>
+      </h1>
+      <p class="hero-sub">
+        Умный дневник питания. Достаточно сделать снимок блюда — искусственный
+        интеллект мгновенно определит КБЖУ всей порции.
+      </p>
+      <div class="hero-btns">
+        <a class="btn-primary btn-glow"
+           href="https://play.google.com/store/apps/details?id=com.kushai.kushai"
+           target="_blank">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3.18 23.76a2 2 0 0 0 2.06-.16l12.32-7.12-3.1-3.1L3.18 23.76zM20.54 9.22l-3.14-1.82-3.44 3.44 3.44 3.44 3.17-1.83a1.99 1.99 0 0 0 0-3.23zM3 1.25a2 2 0 0 0-.82 1.62v18.26c0 .66.32 1.24.82 1.62l.1.08 10.23-10.23v-.24L3.1 1.17 3 1.25zM14.31 12l-3.5-3.5 3.18-3.18 3.5 3.5L14.31 12z"/>
+          </svg>
+          Скачать в Google Play
+        </a>
+        <a class="btn-secondary" href="#features">
+          Узнать больше ↓
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-n"><span style="color:var(--accent)">500</span><span class="unit">+</span></div>
+          <div class="hero-stat-l">рецептов и растёт</div>
+        </div>
+        <div>
+          <div class="hero-stat-n"><span class="counter" data-target="16">0</span><span class="unit">:8</span></div>
+          <div class="hero-stat-l">интервальное голодание</div>
+        </div>
+        <div>
+          <div class="hero-stat-n"><span class="counter" data-target="3">0</span><span class="unit">с</span></div>
+          <div class="hero-stat-l">анализ по фото</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHONE SCREENSHOT -->
+    <div class="hero-right">
+      <div class="phone-wrap">
+        <div class="phone-glow"></div>
+        <img
+          src="phone-only.png"
+          alt="КушАИ — анализ еды по фото"
+          style="
+            width: 300px;
+            display: block;
+            filter: drop-shadow(0 30px 60px rgba(0,0,0,0.6))
+                    drop-shadow(0 0 40px rgba(200,240,96,0.08));
+          "
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="strip-inner">
+    <div class="strip-item">
+      <div class="strip-n"><span class="s-accent">500</span>+</div>
+      <div class="strip-l">рецептов — постоянно растёт</div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-n"><span class="s-accent">AI</span></div>
+      <div class="strip-l">анализ по фото</div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-n"><span class="s-accent">5</span></div>
+      <div class="strip-l">метаболических зон</div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-n"><span class="s-accent">0₽</span></div>
+      <div class="strip-l">бесплатно навсегда</div>
+    </div>
+  </div>
+</div>
 
 <!-- FEATURES -->
-<section class="section">
-  <p class="section-label">Возможности</p>
+<section class="section" id="features">
+  <div class="section-tag">Возможности</div>
   <h2>Всё для контроля питания</h2>
-  <p class="section-sub">Никаких баз данных — просто сфотографируй. ИИ сделает всё остальное.</p>
+  <p class="section-sub">Никаких баз данных вручную. Просто сфотографируй — ИИ сделает всё остальное.</p>
 
-  <div class="features">
-    <div class="feature-card">
-      <div class="feature-icon">📸</div>
-      <h3>Анализ по фото</h3>
-      <p>Сфотографируй блюдо — ИИ распознаёт еду и считает КБЖУ за секунды. Работает с любой едой.</p>
+  <div class="bento">
+    <div class="bento-card wide reveal">
+      <div class="bento-icon">📸</div>
+      <h3>AI-анализ по фото</h3>
+      <p>Сфотографируй любое блюдо — нейросеть распознаёт еду и мгновенно считает калории, белки, жиры и углеводы. Работает с любой кухней мира.</p>
+      <div class="bento-big-text">1–3 сек</div>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">📊</div>
+    <div class="bento-card reveal reveal-d1">
+      <div class="bento-icon">⏱️</div>
+      <h3>Интервальное голодание</h3>
+      <p>16:8, 18:6, 20:4, OMAD. Анимированный таймер с 5 метаболическими зонами тела.</p>
+    </div>
+    <div class="bento-card reveal reveal-d1">
+      <div class="bento-icon">📊</div>
       <h3>Дневник и статистика</h3>
-      <p>История приёмов пищи, график калорий за неделю. Видно сколько осталось до дневной цели.</p>
+      <p>История приёмов пищи, график калорий за неделю и прогресс к дневной цели.</p>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔍</div>
+    <div class="bento-card blue reveal reveal-d2">
+      <div class="bento-icon">🔍</div>
       <h3>Сканер штрихкодов</h3>
-      <p>Наведи камеру на штрихкод продукта — данные подтянутся из базы Open Food Facts.</p>
+      <p>Наведи камеру на упаковку — данные подтянутся из Open Food Facts.</p>
+      <div class="bento-big-text blue">24 млн</div>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">🎯</div>
-      <h3>Личные цели</h3>
-      <p>Задай свою суточную норму калорий и макросов. Всё настраивается под тебя.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔐</div>
-      <h3>Биометрическая защита</h3>
-      <p>Блокировка приложения по отпечатку пальца или распознаванию лица.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">☁️</div>
+    <div class="bento-card reveal reveal-d3">
+      <div class="bento-icon">☁️</div>
       <h3>Синхронизация</h3>
-      <p>Данные хранятся в облаке. Смени телефон — история питания останется.</p>
+      <p>Данные хранятся в облаке — смени телефон, история питания останется.</p>
     </div>
   </div>
 </section>
@@ -282,26 +863,409 @@
 
 <!-- HOW IT WORKS -->
 <section class="section">
-  <p class="section-label">Как это работает</p>
+  <div class="section-tag">Как это работает</div>
   <h2>Три шага — и готово</h2>
-  <p class="section-sub" style="margin-bottom: 40px;">Никакого ручного ввода. Просто сфотографируй.</p>
+  <p class="section-sub" style="margin-bottom:48px;">Никакого ручного ввода. Просто сфотографируй блюдо.</p>
 
-  <div class="steps-wrap">
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <h3>Сфотографируй</h3>
-        <p>Нажми «Добавить» и выбери блюдо из галереи или сделай снимок камерой</p>
+  <div class="steps-grid">
+
+    <!-- ШАГ 1: Камера со вспышкой -->
+    <div class="step reveal">
+      <span class="step-n">01</span>
+      <div class="step-anim-wrap">
+        <div class="anim-camera">
+          <svg viewBox="0 0 80 80" width="80" height="80">
+            <!-- Корпус камеры -->
+            <rect x="8" y="22" width="64" height="44" rx="10" fill="#1E1E1E" stroke="#333" stroke-width="1.5"/>
+            <!-- Объектив (внешнее кольцо) -->
+            <circle cx="40" cy="44" r="16" fill="#141414" stroke="#2A2A2A" stroke-width="2"/>
+            <!-- Кольцо объектива -->
+            <circle cx="40" cy="44" r="12" fill="#0E0E0E" stroke="#C8F060" stroke-width="1.5" class="lens-ring"/>
+            <!-- Блик объектива -->
+            <circle cx="40" cy="44" r="7" fill="#1A1A1A"/>
+            <circle cx="36" cy="40" r="2.5" fill="rgba(200,240,96,0.5)" class="lens-shine"/>
+            <!-- Вспышка -->
+            <rect x="52" y="16" width="12" height="8" rx="3" fill="#C8F060" class="flash-body"/>
+            <!-- Кнопка затвора -->
+            <circle cx="22" cy="26" r="4" fill="#2A2A2A"/>
+            <circle cx="22" cy="26" r="2.5" fill="#1A1A1A" class="shutter-btn"/>
+            <!-- Вспышка света -->
+            <rect x="0" y="0" width="80" height="80" rx="10" fill="white" class="flash-burst" opacity="0"/>
+          </svg>
+          <!-- Линия прицела -->
+          <div class="camera-crosshair">
+            <div class="ch-tl"></div>
+            <div class="ch-tr"></div>
+            <div class="ch-bl"></div>
+            <div class="ch-br"></div>
+            <div class="ch-dot"></div>
+          </div>
+        </div>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <h3>ИИ анализирует</h3>
-        <p>Искусственный интеллект распознаёт еду и определяет КБЖУ — занимает 1–3 секунды</p>
+      <h3>Сфотографируй</h3>
+      <p>Нажми «Добавить» и выбери блюдо из галереи или сделай снимок прямо в приложении.</p>
+      <div class="step-arrow">›</div>
+    </div>
+
+    <!-- ШАГ 2: Анализ — сканирование -->
+    <div class="step reveal reveal-d1">
+      <span class="step-n">02</span>
+      <div class="step-anim-wrap">
+        <div class="anim-scan">
+          <!-- Тарелка с едой -->
+          <svg viewBox="0 0 80 80" width="80" height="80">
+            <circle cx="40" cy="44" r="28" fill="#1A1A1A" stroke="#2A2A2A" stroke-width="1.5"/>
+            <circle cx="40" cy="44" r="22" fill="#141414"/>
+            <!-- Еда (упрощённо) -->
+            <ellipse cx="34" cy="40" rx="8" ry="6" fill="#F0A060" opacity="0.7"/>
+            <ellipse cx="46" cy="42" rx="6" ry="5" fill="#C8F060" opacity="0.6"/>
+            <circle cx="40" cy="36" r="5" fill="#F06060" opacity="0.7"/>
+            <ellipse cx="38" cy="50" rx="7" ry="4" fill="#60D0F0" opacity="0.5"/>
+            <!-- Каллории badge -->
+            <rect x="18" y="18" width="44" height="14" rx="7" fill="#C8F060"/>
+            <text x="40" y="28" text-anchor="middle" fill="#0A0A0A" font-size="8" font-weight="800" font-family="sans-serif">320 ккал</text>
+            <!-- Scan line (анимируется через CSS) -->
+            <line x1="12" y1="44" x2="68" y2="44" stroke="#C8F060" stroke-width="1.5" class="scan-line" opacity="0.9"/>
+            <!-- Scan glow -->
+            <rect x="12" y="38" width="56" height="12" fill="url(#scan-grad)" class="scan-glow"/>
+            <defs>
+              <linearGradient id="scan-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#C8F060" stop-opacity="0"/>
+                <stop offset="50%" stop-color="#C8F060" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#C8F060" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <!-- Точки обработки -->
+          <div class="scan-dots">
+            <div class="sd sd1"></div>
+            <div class="sd sd2"></div>
+            <div class="sd sd3"></div>
+          </div>
+          <div class="scan-label">Анализирую...</div>
+        </div>
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <h3>Сохрани в дневник</h3>
-        <p>Проверь данные и добавь запись. Приложение обновит статистику за день</p>
+      <h3>ИИ анализирует</h3>
+      <p>Нейросеть распознаёт еду и определяет КБЖУ всей порции — занимает 1–3 секунды.</p>
+      <div class="step-arrow">›</div>
+    </div>
+
+    <!-- ШАГ 3: Галочка с кольцом -->
+    <div class="step reveal reveal-d2">
+      <span class="step-n">03</span>
+      <div class="step-anim-wrap">
+        <div class="anim-check">
+          <svg viewBox="0 0 80 80" width="80" height="80">
+            <!-- Фоновый круг -->
+            <circle cx="40" cy="40" r="30" fill="rgba(200,240,96,0.06)" stroke="rgba(200,240,96,0.2)" stroke-width="1.5"/>
+            <!-- Прогресс-кольцо -->
+            <circle cx="40" cy="40" r="26"
+              fill="none"
+              stroke="#C8F060"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-dasharray="163"
+              stroke-dashoffset="163"
+              transform="rotate(-90 40 40)"
+              class="check-ring"/>
+            <!-- Галочка -->
+            <polyline
+              points="26,40 35,50 54,28"
+              fill="none"
+              stroke="#C8F060"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-dasharray="40"
+              stroke-dashoffset="40"
+              class="check-mark"/>
+            <!-- Блики -->
+            <circle cx="40" cy="40" r="16" fill="rgba(200,240,96,0.04)" class="check-pulse"/>
+          </svg>
+          <div class="check-label">Сохранено!</div>
+        </div>
+      </div>
+      <h3>Сохрани в дневник</h3>
+      <p>Проверь данные, скорректируй если нужно, и добавь запись. Статистика обновится.</p>
+    </div>
+
+  </div>
+</section>
+
+<style>
+/* ── Обёртка анимации ── */
+.step-anim-wrap {
+  width: 100%; height: 106px;
+  margin-bottom: 16px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-start;
+}
+
+/* ── Шаг 1: Камера ── */
+.anim-camera { position: relative; width: 80px; height: 80px; }
+.lens-ring { animation: lens-pulse 2.5s ease-in-out infinite; }
+@keyframes lens-pulse {
+  0%,100% { stroke: #C8F060; filter: drop-shadow(0 0 3px rgba(200,240,96,0.5)); }
+  50% { stroke: rgba(200,240,96,0.4); filter: none; }
+}
+.flash-body { animation: flash-glow 2.5s ease-in-out infinite; }
+@keyframes flash-glow {
+  0%,80%,100% { fill: #C8F060; opacity:1; }
+  85% { fill: white; opacity:1; }
+  87% { fill: #C8F060; opacity:0.3; }
+  90% { fill: white; opacity:1; }
+}
+.flash-burst { animation: flash-burst 2.5s ease-in-out infinite; }
+@keyframes flash-burst {
+  0%,83%,90%,100% { opacity:0; }
+  85%,88% { opacity:0.12; }
+}
+.shutter-btn { animation: shutter-click 2.5s ease-in-out infinite; }
+@keyframes shutter-click {
+  0%,82%,87%,100% { transform: scale(1); }
+  84% { transform: scale(0.7); }
+}
+.camera-crosshair {
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+.ch-tl,.ch-tr,.ch-bl,.ch-br {
+  position: absolute; width: 10px; height: 10px;
+  border-color: rgba(200,240,96,0.5);
+  border-style: solid;
+  animation: crosshair-pulse 2.5s ease-in-out infinite;
+}
+.ch-tl { top:16px; left:8px; border-width: 2px 0 0 2px; }
+.ch-tr { top:16px; right:8px; border-width: 2px 2px 0 0; }
+.ch-bl { bottom:8px; left:8px; border-width: 0 0 2px 2px; }
+.ch-br { bottom:8px; right:8px; border-width: 0 2px 2px 0; }
+.ch-dot {
+  position: absolute; top:50%; left:50%;
+  width:4px; height:4px; border-radius:50%;
+  background: rgba(200,240,96,0.6);
+  transform: translate(-50%,-50%);
+  animation: crosshair-pulse 2.5s ease-in-out infinite;
+}
+@keyframes crosshair-pulse {
+  0%,100% { opacity:0.5; }
+  50% { opacity:1; }
+}
+
+/* ── Шаг 2: Сканирование ── */
+.anim-scan { position: relative; width:80px; }
+.scan-line {
+  animation: scan-move 2s ease-in-out infinite;
+  transform-origin: center;
+}
+.scan-glow {
+  animation: scan-move 2s ease-in-out infinite;
+}
+@keyframes scan-move {
+  0% { transform: translateY(-22px); opacity:0; }
+  10% { opacity:1; }
+  90% { opacity:1; }
+  100% { transform: translateY(22px); opacity:0; }
+}
+.scan-dots { display:flex; gap:5px; justify-content:center; margin-top:4px; }
+.sd {
+  width:6px; height:6px; border-radius:50%;
+  background: var(--accent);
+  animation: dot-bounce 1.4s ease-in-out infinite;
+}
+.sd1 { animation-delay:0s; }
+.sd2 { animation-delay:.2s; }
+.sd3 { animation-delay:.4s; }
+@keyframes dot-bounce {
+  0%,80%,100% { transform:scale(0.6); opacity:0.4; }
+  40% { transform:scale(1); opacity:1; }
+}
+.scan-label {
+  font-size:10px; color:var(--accent); text-align:center;
+  font-weight:600; letter-spacing:1px; margin-top:2px;
+  animation: label-blink 2s ease-in-out infinite;
+}
+@keyframes label-blink {
+  0%,100% { opacity:0.5; }
+  50% { opacity:1; }
+}
+
+/* ── Шаг 3: Галочка ── */
+.anim-check { position:relative; width:80px; }
+.check-ring {
+  animation: ring-fill 2.5s ease-in-out infinite;
+}
+@keyframes ring-fill {
+  0%,15% { stroke-dashoffset:163; opacity:0.3; }
+  55%,80% { stroke-dashoffset:0; opacity:1; }
+  95%,100% { stroke-dashoffset:163; opacity:0.3; }
+}
+.check-mark {
+  animation: check-draw 2.5s ease-in-out infinite;
+}
+@keyframes check-draw {
+  0%,25% { stroke-dashoffset:40; }
+  65%,80% { stroke-dashoffset:0; }
+  95%,100% { stroke-dashoffset:40; }
+}
+.check-pulse {
+  animation: check-glow 2.5s ease-in-out infinite;
+}
+@keyframes check-glow {
+  0%,55%,100% { r:16; opacity:0; }
+  70% { r:22; opacity:1; }
+  85% { r:28; opacity:0; }
+}
+.check-label {
+  font-size:10px; color:var(--accent); text-align:center;
+  font-weight:600; letter-spacing:1px; margin-top:2px;
+  animation: check-label-show 2.5s ease-in-out infinite;
+}
+@keyframes check-label-show {
+  0%,55% { opacity:0; transform:translateY(4px); }
+  70%,85% { opacity:1; transform:translateY(0); }
+  95%,100% { opacity:0; }
+}
+</style>
+
+<hr class="divider" />
+
+<!-- FASTING -->
+<section class="section">
+  <div class="section-tag">Новое</div>
+  <h2>Интервальное голодание</h2>
+  <p class="section-sub">Следи за метаболическими зонами в реальном времени. Умный таймер знает, что происходит с твоим телом.</p>
+
+  <div class="fasting-block">
+    <div class="fasting-visual">
+      <!-- Кольцо: 5 сегментов, каждый 72° из 360° = 1/5 окружности -->
+      <!-- Длина окружности r=80: 2*π*80 ≈ 503 -->
+      <svg id="fasting-svg" class="fasting-ring-svg" viewBox="0 0 200 200" style="animation:none;">
+        <circle cx="100" cy="100" r="80" fill="none" stroke="#1A1A1A" stroke-width="18"/>
+        <!-- Z0 -->
+        <circle id="seg0" cx="100" cy="100" r="80" fill="none" stroke="#8090A0" stroke-width="18"
+          stroke-linecap="round" stroke-dasharray="93 410"
+          transform="rotate(-90 100 100)" opacity="0.35"/>
+        <!-- Z1 -->
+        <circle id="seg1" cx="100" cy="100" r="80" fill="none" stroke="#60D0F0" stroke-width="18"
+          stroke-linecap="round" stroke-dasharray="93 410"
+          transform="rotate(-18 100 100)" opacity="0.35"/>
+        <!-- Z2 -->
+        <circle id="seg2" cx="100" cy="100" r="80" fill="none" stroke="#F0A060" stroke-width="18"
+          stroke-linecap="round" stroke-dasharray="93 410"
+          transform="rotate(54 100 100)" opacity="0.35"/>
+        <!-- Z3 -->
+        <circle id="seg3" cx="100" cy="100" r="80" fill="none" stroke="#C8F060" stroke-width="18"
+          stroke-linecap="round" stroke-dasharray="93 410"
+          transform="rotate(126 100 100)" opacity="0.35"/>
+        <!-- Z4 -->
+        <circle id="seg4" cx="100" cy="100" r="80" fill="none" stroke="#B060F0" stroke-width="18"
+          stroke-linecap="round" stroke-dasharray="93 410"
+          transform="rotate(198 100 100)" opacity="0.35"/>
+        <defs>
+          <filter id="glow-f">
+            <feGaussianBlur stdDeviation="5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+      </svg>
+      <div class="fasting-center">
+        <div id="fasting-emoji-big" class="fasting-emoji">😌</div>
+        <div id="fasting-timer" class="fasting-time">00:00:00</div>
+        <div id="fasting-hint" class="fasting-label">из 16 часов</div>
+      </div>
+    </div>
+
+    <div>
+      <!-- Подсказка о начале голодания -->
+      <div id="fasting-note" style="
+        font-size:12px; color:var(--muted); margin-bottom:14px;
+        display:flex; align-items:center; gap:6px;
+      ">
+        <span style="color:var(--accent)">●</span>
+        <span id="fasting-note-text">Считаем от 20:00 — стандартное начало голодания 16:8</span>
+      </div>
+
+      <div class="fasting-zones">
+        <div class="fasting-zone" data-zone="0">
+          <div class="zone-dot" style="background:#8090A0"></div>
+          <div class="zone-info">
+            <div class="zone-name">Переваривание</div>
+            <div class="zone-time">0–4 часа</div>
+          </div>
+          <div class="zone-emoji-s">😌</div>
+        </div>
+        <div class="fasting-zone" data-zone="1">
+          <div class="zone-dot" style="background:#60D0F0"></div>
+          <div class="zone-info">
+            <div class="zone-name">Снижение сахара</div>
+            <div class="zone-time">4–8 часов</div>
+          </div>
+          <div class="zone-emoji-s">⚖️</div>
+        </div>
+        <div class="fasting-zone" data-zone="2">
+          <div class="zone-dot" style="background:#F0A060"></div>
+          <div class="zone-info">
+            <div class="zone-name">Жиросжигание</div>
+            <div class="zone-time">8–12 часов</div>
+          </div>
+          <div class="zone-emoji-s">🔥</div>
+        </div>
+        <div class="fasting-zone" data-zone="3">
+          <div class="zone-dot" style="background:#C8F060"></div>
+          <div class="zone-info">
+            <div class="zone-name">Глубокое сжигание</div>
+            <div class="zone-time">12–16 часов</div>
+          </div>
+          <div class="zone-emoji-s">⚡</div>
+        </div>
+        <div class="fasting-zone" data-zone="4">
+          <div class="zone-dot" style="background:#B060F0"></div>
+          <div class="zone-info">
+            <div class="zone-name">Кетоз / Аутофагия</div>
+            <div class="zone-time">16+ часов</div>
+          </div>
+          <div class="zone-emoji-s">🧬</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- RECIPES -->
+<section class="section">
+  <div class="section-tag">Рецепты</div>
+  <h2>Постоянно пополняемые рецепты</h2>
+  <p class="section-sub">С КБЖУ, ингредиентами и пошаговыми инструкциями. Коллекция регулярно обновляется.</p>
+
+  <div class="recipe-row">
+    <div class="recipe-card reveal">
+      <div class="recipe-img">🥞</div>
+      <div class="recipe-body">
+        <div class="recipe-name">Блины с творогом и ягодами</div>
+        <div class="recipe-kcal">320 ккал · 25 мин</div>
+      </div>
+    </div>
+    <div class="recipe-card reveal reveal-d1">
+      <div class="recipe-img">🥣</div>
+      <div class="recipe-body">
+        <div class="recipe-name">Гранола с орехами и мёдом</div>
+        <div class="recipe-kcal">410 ккал · 15 мин</div>
+      </div>
+    </div>
+    <div class="recipe-card reveal reveal-d2">
+      <div class="recipe-img">🍳</div>
+      <div class="recipe-body">
+        <div class="recipe-name">Яйца пашот с авокадо</div>
+        <div class="recipe-kcal">290 ккал · 10 мин</div>
+      </div>
+    </div>
+    <div class="recipe-card reveal reveal-d3">
+      <div class="recipe-img">🥤</div>
+      <div class="recipe-body">
+        <div class="recipe-name">Смузи-боул с бананом</div>
+        <div class="recipe-kcal">280 ккал · 5 мин</div>
       </div>
     </div>
   </div>
@@ -310,37 +1274,40 @@
 <hr class="divider" />
 
 <!-- PRICING -->
-<section class="section">
-  <p class="section-label">Тарифы</p>
+<section class="section" id="pricing">
+  <div class="section-tag">Тарифы</div>
   <h2>Бесплатно навсегда</h2>
-  <p class="section-sub" style="margin-bottom: 40px;">Базовые функции — без ограничения по времени. Pro — для тех, кто хочет больше.</p>
+  <p class="section-sub" style="margin-bottom:48px;">Базовые функции — без ограничений по времени.</p>
 
-  <div class="pricing">
-    <div class="plan">
-      <div class="plan-label">Бесплатно</div>
-      <div class="plan-price">0 ₽ <span>/ навсегда</span></div>
+  <div class="pricing-grid">
+    <div class="plan reveal">
+      <div class="plan-name">Бесплатно</div>
+      <div class="plan-price">0 <span class="plan-per">₽ / навсегда</span></div>
       <div class="plan-desc">Всё необходимое без оплаты</div>
-      <ul class="plan-features">
+      <ul class="plan-list">
         <li>1 AI-анализ по фото в день</li>
         <li>Сканер штрихкодов</li>
         <li>Ручной ввод КБЖУ</li>
         <li>История питания</li>
-        <li>Биометрическая защита</li>
-        <li class="muted">Безлимитный AI-анализ</li>
-        <li class="muted">Расширенная статистика</li>
+        <li>Рецепты (постоянно пополняется)</li>
+        <li>Интервальное голодание</li>
+        <li class="off">Безлимитный AI-анализ</li>
+        <li class="off">Расширенная статистика</li>
       </ul>
     </div>
-    <div class="plan pro">
-      <div class="plan-label">Pro</div>
-      <div class="plan-price">149 ₽ <span>/ месяц</span></div>
-      <div class="plan-desc">Без ограничений</div>
-      <ul class="plan-features">
+    <div class="plan pro reveal reveal-d1">
+      <div class="plan-badge">PRO</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">149 <span class="plan-per">₽ / месяц</span></div>
+      <div class="plan-desc">Без каких-либо ограничений</div>
+      <ul class="plan-list">
         <li>Безлимитный AI-анализ по фото</li>
         <li>Сканер штрихкодов</li>
         <li>Ручной ввод КБЖУ</li>
         <li>Вся история питания</li>
-        <li>Биометрическая защита</li>
-        <li>Статистика за любой период</li>
+        <li>Рецепты (постоянно пополняется)</li>
+        <li>Интервальное голодание</li>
+        <li>Расширенная статистика</li>
         <li>Приоритетная поддержка</li>
       </ul>
     </div>
@@ -349,24 +1316,254 @@
 
 <!-- CTA -->
 <section class="cta-section">
+  <div class="cta-bg"></div>
   <h2>Начни следить за питанием<br />прямо сейчас</h2>
-  <p>1 AI-анализ в день — бесплатно навсегда. Pro — 149 ₽/мес.</p>
-  <a class="btn-primary" href="https://play.google.com/store/apps/details?id=com.kushai.kushai" target="_blank">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.06-.16l12.32-7.12-3.1-3.1L3.18 23.76zM20.54 9.22l-3.14-1.82-3.44 3.44 3.44 3.44 3.17-1.83a1.99 1.99 0 0 0 0-3.23zM3 1.25a2 2 0 0 0-.82 1.62v18.26c0 .66.32 1.24.82 1.62l.1.08 10.23-10.23v-.24L3.1 1.17 3 1.25zM14.31 12l-3.5-3.5 3.18-3.18 3.5 3.5L14.31 12z"/></svg>
-    Скачать в Google Play
-  </a>
+  <p>Бесплатно. Без карты. Без подписки.</p>
+  <div class="cta-btns">
+    <a class="btn-primary btn-glow"
+       href="https://play.google.com/store/apps/details?id=com.kushai.kushai"
+       target="_blank">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3.18 23.76a2 2 0 0 0 2.06-.16l12.32-7.12-3.1-3.1L3.18 23.76zM20.54 9.22l-3.14-1.82-3.44 3.44 3.44 3.44 3.17-1.83a1.99 1.99 0 0 0 0-3.23zM3 1.25a2 2 0 0 0-.82 1.62v18.26c0 .66.32 1.24.82 1.62l.1.08 10.23-10.23v-.24L3.1 1.17 3 1.25zM14.31 12l-3.5-3.5 3.18-3.18 3.5 3.5L14.31 12z"/>
+      </svg>
+      Скачать в Google Play
+    </a>
+    <a class="btn-secondary" href="mailto:support@kushai.online">
+      ✉ Написать нам
+    </a>
+  </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <span>© 2026 КушАИ</span>
+  <a class="footer-logo" href="/">КушАИ</a>
   <div class="footer-links">
     <a href="mailto:support@kushai.online">support@kushai.online</a>
     <a href="/privacy.html">Конфиденциальность</a>
     <a href="/terms.html">Соглашение</a>
-    <a href="/legal.html">Реквизиты и оферта</a>
+    <a href="/legal.html">Реквизиты</a>
   </div>
+  <span style="color:var(--muted)">© 2026 КушАИ</span>
 </footer>
+
+<script>
+/* ─── CANVAS PARTICLES ─────────────────────────────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], raf;
+
+  function resize() {
+    const hero = canvas.parentElement;
+    W = canvas.width  = hero.offsetWidth;
+    H = canvas.height = hero.offsetHeight;
+  }
+
+  function initParticles() {
+    particles = [];
+    const count = Math.min(60, Math.floor(W * H / 18000));
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: 1 + Math.random() * 2,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        o: 0.05 + Math.random() * 0.18,
+        // 0=green, 1=blue
+        c: Math.random() > 0.6 ? 1 : 0,
+      });
+    }
+  }
+
+  const colors = ['200,240,96', '96,208,240'];
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Draw connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          const op = (1 - dist / 120) * 0.06;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(200,240,96,${op})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw particles
+    for (const p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${colors[p.c]},${p.o})`;
+      ctx.fill();
+
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < -10) p.x = W + 10;
+      if (p.x > W + 10) p.x = -10;
+      if (p.y < -10) p.y = H + 10;
+      if (p.y > H + 10) p.y = -10;
+    }
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  resize();
+  initParticles();
+  draw();
+
+  window.addEventListener('resize', () => {
+    resize();
+    initParticles();
+  });
+})();
+
+/* ─── SCROLL REVEAL ────────────────────────────────────────────────────────── */
+(function() {
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  els.forEach(el => obs.observe(el));
+})();
+
+/* ─── COUNTER ──────────────────────────────────────────────────────────────── */
+(function() {
+  const counters = document.querySelectorAll('.counter');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = +el.dataset.target;
+      const dur = 1200;
+      const start = performance.now();
+      function tick(now) {
+        const p = Math.min((now - start) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(ease * target);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => obs.observe(c));
+})();
+
+/* ─── FASTING — ДИНАМИЧЕСКАЯ ЗОНА ─────────────────────────────────────────── */
+(function() {
+  const FAST_START_HOUR = 20; // голодание начинается в 20:00
+
+  const zones = [
+    { color: '#8090A0', emoji: '😌', name: 'Переваривание',     glow: 'rgba(128,144,160,0.5)' },
+    { color: '#60D0F0', emoji: '⚖️', name: 'Снижение сахара',   glow: 'rgba(96,208,240,0.5)'  },
+    { color: '#F0A060', emoji: '🔥', name: 'Жиросжигание',      glow: 'rgba(240,160,96,0.5)'  },
+    { color: '#C8F060', emoji: '⚡', name: 'Глубокое сжигание', glow: 'rgba(200,240,96,0.5)'  },
+    { color: '#B060F0', emoji: '🧬', name: 'Кетоз / Аутофагия', glow: 'rgba(176,96,240,0.5)'  },
+  ];
+
+  function getElapsedSecs() {
+    const now = new Date();
+    const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+    const nowMins = h * 60 + m;
+    const startMins = FAST_START_HOUR * 60;
+    let elapsedMins = nowMins >= startMins
+      ? nowMins - startMins
+      : (24 * 60 - startMins) + nowMins;
+    return elapsedMins * 60 + s;
+  }
+
+  function getZone(elapsedSecs) {
+    const h = elapsedSecs / 3600;
+    if (h < 4)  return 0;
+    if (h < 8)  return 1;
+    if (h < 12) return 2;
+    if (h < 16) return 3;
+    return 4;
+  }
+
+  function fmt(secs) {
+    const h = String(Math.floor(secs / 3600)).padStart(2,'0');
+    const m = String(Math.floor((secs % 3600) / 60)).padStart(2,'0');
+    const s = String(secs % 60).padStart(2,'0');
+    return `${h}:${m}:${s}`;
+  }
+
+  function update() {
+    const elapsed = getElapsedSecs();
+    const zoneIdx = getZone(elapsed);
+    const z = zones[zoneIdx];
+
+    // Таймер
+    document.getElementById('fasting-timer').textContent = fmt(elapsed);
+
+    // Эмодзи и цвет
+    document.getElementById('fasting-emoji-big').textContent = z.emoji;
+
+    // Подсказка
+    const startTime = `${String(FAST_START_HOUR).padStart(2,'0')}:00`;
+    const now = new Date();
+    const startDate = now.getHours() >= FAST_START_HOUR ? 'сегодня' : 'вчера';
+    document.getElementById('fasting-note-text').textContent =
+      `Голодание с ${startDate} ${startTime} · сейчас: ${z.name}`;
+
+    // Зоны — подсветка активной
+    document.querySelectorAll('.fasting-zone').forEach((el, i) => {
+      const isActive = i === zoneIdx;
+      el.style.borderColor = isActive ? z.color + '55' : '';
+      el.style.background  = isActive ? z.color + '0D' : '';
+      const nameEl = el.querySelector('.zone-name');
+      nameEl.style.color = isActive ? z.color : '';
+      const dotEl = el.querySelector('.zone-dot');
+      dotEl.style.boxShadow = isActive ? `0 0 8px ${z.glow}` : '';
+      // Стрелка "← сейчас"
+      let badge = el.querySelector('.zone-now');
+      if (isActive) {
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'zone-now';
+          badge.style.cssText = `font-size:10px;font-weight:700;
+            color:${z.color};margin-left:4px;letter-spacing:.5px;`;
+          badge.textContent = '← сейчас';
+          nameEl.appendChild(badge);
+        }
+      } else if (badge) badge.remove();
+    });
+
+    // Кольцо — активный сегмент светится
+    for (let i = 0; i < 5; i++) {
+      const seg = document.getElementById('seg' + i);
+      if (!seg) continue;
+      if (i === zoneIdx) {
+        seg.style.opacity = '1';
+        seg.setAttribute('stroke-width', '24');
+        seg.setAttribute('filter', 'url(#glow-f)');
+      } else {
+        seg.style.opacity = '0.3';
+        seg.setAttribute('stroke-width', '18');
+        seg.removeAttribute('filter');
+      }
+    }
+  }
+
+  update();
+  setInterval(update, 1000);
+})();
+</script>
 
 </body>
 </html>
